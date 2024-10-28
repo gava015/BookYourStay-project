@@ -3,6 +3,6 @@ module com.example.app_bookyourstay {
     requires javafx.fxml;
 
 
-    opens com.example.app_bookyourstay to javafx.fxml;
-    exports com.example.app_bookyourstay;
+    opens co.edu.uniquindio.BookYourStay to javafx.fxml;
+    exports co.edu.uniquindio.BookYourStay;
 }
