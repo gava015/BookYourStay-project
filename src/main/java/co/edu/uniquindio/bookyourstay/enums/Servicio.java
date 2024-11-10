@@ -1,4 +1,4 @@
-package co.edu.uniquindio.BookYourStay.modelo.Enums;
+package co.edu.uniquindio.bookyourstay.enums;
 
 public enum Servicio {
     DESAYUNO,

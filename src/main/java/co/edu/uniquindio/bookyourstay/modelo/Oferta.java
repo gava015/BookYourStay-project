@@ -1,4 +1,4 @@
-package co.edu.uniquindio.BookYourStay.modelo;
+package co.edu.uniquindio.bookyourstay.modelo;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,10 +10,9 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Oferta {
+    private String id;
     private String descripcion;
     private Double descuento;
     private LocalDate fechaInicio;
-    private LocalDate fechaFin;
-
-
+    private LocalDate fechaFinal;
 }

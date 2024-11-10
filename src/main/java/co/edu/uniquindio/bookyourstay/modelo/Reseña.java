@@ -1,4 +1,4 @@
-package co.edu.uniquindio.BookYourStay.modelo;
+package co.edu.uniquindio.bookyourstay.modelo;
 
 
 import lombok.Builder;

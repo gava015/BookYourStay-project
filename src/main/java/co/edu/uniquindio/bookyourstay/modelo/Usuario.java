@@ -1,18 +1,18 @@
-package co.edu.uniquindio.BookYourStay.modelo;
+package co.edu.uniquindio.bookyourstay.modelo;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Builder
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class Usuario {
-    protected String correo;
-    protected String contraseña;
     protected String identificacion;
     protected String nombre;
     protected String telefono;
+    protected String correo;
+    protected String contrasenia;
 }
