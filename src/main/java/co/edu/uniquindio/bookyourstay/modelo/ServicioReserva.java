@@ -4,13 +4,23 @@ import co.edu.uniquindio.bookyourstay.enums.EstadoReserva;
 import co.edu.uniquindio.bookyourstay.enums.Servicio;
 import co.edu.uniquindio.bookyourstay.enums.TipoAlojamiento;
 import co.edu.uniquindio.bookyourstay.factory.AlojamientoFactory;
+import co.edu.uniquindio.bookyourstay.servicios.Gestion;
+import co.edu.uniquindio.bookyourstay.servicios.GestionUsuario;
+import co.edu.uniquindio.bookyourstay.utils.EnvioEmail;
+import co.edu.uniquindio.bookyourstay.utils.ValidacionUtil;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
-public class ServicioReserva {
+
+@Data
+@AllArgsConstructor
+public class ServicioReserva implements GestionUsuario, Gestion {
 
     private AlojamientoFactory factory;
 
@@ -22,6 +32,8 @@ public class ServicioReserva {
 
     private List<Reserva> listaReservas;
 
+    private String codigoVerificacion;
+
     public ServicioReserva() {
         factory = new AlojamientoFactory();
         listaAlojamientos = new ArrayList<>();
@@ -29,7 +41,11 @@ public class ServicioReserva {
         listaUsuarios = new ArrayList<>();
     }
 
-    public Usuario loginUsuario(String correo, String contrasenia) {
+    @Override
+    public Usuario ingresarUsuario(String correo, String contrasenia) throws Exception {
+        ValidacionUtil.validarCampo(correo, "Correo");
+        ValidacionUtil.validarCampo(contrasenia, "Contraseña");
+
         for (Usuario usuario : listaUsuarios) {
             if (usuario.getCorreo().equalsIgnoreCase(correo) && usuario.getContrasenia().equals(contrasenia)) {
                 return usuario;
@@ -38,8 +54,63 @@ public class ServicioReserva {
         return null;
     }
 
+    @Override
+    public Usuario registrarUsuario(String identificacion, String nombre, String telefono, String correo, String contrasenia) throws Exception {
+        ValidacionUtil.validarCampo(identificacion, "Identificación");
+        ValidacionUtil.validarCampo(nombre, "Nombre");
+        ValidacionUtil.validarCampo(correo, "Correo");
+        ValidacionUtil.validarCampo(contrasenia, "Contraseña");
+        ValidacionUtil.validarCorreo(correo);
+
+        Usuario usuarioBuscado = buscarUsuario(identificacion);
+        if (usuarioBuscado != null) {
+            throw new Exception("Ya existe un cliente registrado con la identificación: " + identificacion);
+        }
+
+        Usuario cliente = Usuario.builder()
+                .identificacion(identificacion)
+                .nombre(nombre)
+                .correo(correo)
+                .telefono(telefono)
+                .contrasenia(contrasenia)
+                .build();
+
+        listaUsuarios.add(cliente);
+        return cliente;
+    }
+
+
+    public boolean enviarCodigoVerificacion(String correo) throws Exception {
+        for (Usuario usuario : listaUsuarios) {
+            if (usuario.getCorreo().equalsIgnoreCase(correo)) {
+                String codigo = generarCodigoAleatorio();
+                String mensaje = "Su código de verificación es: " + codigo;
+                try {
+                    EnvioEmail.enviarNotificacion(correo, "Código de Verificación", mensaje);
+                } catch (Exception e) {
+                    throw new Exception("Error al enviar el correo de verificación: " + e.getMessage(), e);
+                }
+
+                this.codigoVerificacion = codigo;
+                return true;
+            }
+            throw new Exception("El correo proporcionado no coincide con el admiistra");
+        }
+
+        return false;
+
+    }
+
+    private String generarCodigoAleatorio() {
+        Random random = new Random();
+        int codigo = 100000 + random.nextInt(900000);
+        return String.valueOf(codigo);
+    }
+
+
     public Usuario crearUsuario(String identificacion, String nombre, String telefono, String correo, String contrasenia) throws Exception {
         //TODO: Agregar validaciones
+
 
         Usuario usuarioBuscado = buscarUsuario(identificacion);
         if (usuarioBuscado != null) {
@@ -76,9 +147,11 @@ public class ServicioReserva {
         listaUsuarios.remove(usuario);
     }
 
-    public Oferta crearOferta(String descripcion, double descuento, LocalDate fechaInicio, LocalDate fechaFinal) {
+    public Oferta crearOferta(String descripcion, double descuento, LocalDate fechaInicio, LocalDate fechaFinal) throws Exception {
 
         //TODO: Agregar validaciones
+
+        ValidacionUtil.validarCampo(descripcion, "Descripción");
         Oferta oferta = new Oferta(UUID.randomUUID().toString(), descripcion, descuento, fechaInicio, fechaFinal);
         listaOfertas.add(oferta);
         return oferta;
@@ -187,7 +260,7 @@ public class ServicioReserva {
     }
 
     public Reserva buscarReserva(String reservaId) {
-        for (Reserva reserva: listaReservas) {
+        for (Reserva reserva : listaReservas) {
             if (reservaId.equals(reserva.getId())) {
                 return reserva;
             }
@@ -203,7 +276,6 @@ public class ServicioReserva {
 
         listaReservas.remove(reserva);
     }
-
 
 
     public static void main(String[] args) {
